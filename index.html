@@ -1,0 +1,123 @@
+<html>
+<head>
+    <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.3/dist/aframe-extras.min.js"></script>
+
+    <title>Sandy Niche</title>
+    <meta name="description" content="Sandy Niche - a place to chill in VR" />
+
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@studiozeroco">
+    <meta name="twitter:title" content="Sandy Niche">
+    <meta name="twitter:description" content="Sandy Niche - a place to chill in VR">
+    <meta name="twitter:creator" content="@toychicken">
+    <meta name="twitter:image" content="http://sandy-niche.surge.sh/share.jpg">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Sandy Niche" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://sandy-niche.surge.sh" />
+    <meta property="og:image" content="http://sandy-niche.surge.sh/share.jpg" />
+    <meta property="og:description" content="Sandy Niche - a place to chill in VR" />
+    <meta property="og:site_name" content="Sandy Niche" />
+
+    <link rel="apple-touch-icon" sizes="180x180", href="/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png", href="/favicons/favicon-32x32.png", sizes="32x32" />
+    <link rel="icon" type="image/png", href="/favicons/favicon-16x16.png", sizes="16x16" />
+    <link rel="manifest" href="/favicons/manifest.json" />
+    <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico" />
+    <meta name="msapplication-config" content="/favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#1b197c" />
+
+
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <style>
+        #scene {
+            position:absolute;
+            height:100vh;
+            width:100vw;
+            top:0;
+            left:0;
+        }
+        #splash {
+            font-family: 'Quicksand', sans-serif;
+            position:absolute;
+            height:100vh;
+            width:100vw;
+            overflow:hidden;
+            color: white;
+            background : rgba(0,0,0,0.6);
+            top:0;
+            left:0;
+            text-align: center;
+        }
+        a {
+            color : aliceblue;
+        }
+        #splash h1 {
+            margin : 3rem auto 0;
+
+        }
+        #vr {
+            display:inline-block;
+            border : 4px solid white;
+            border-radius : 1rem;
+            padding : 1rem;
+            margin-top: 3rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <audio id="sleepbot" src="http://sc13.shoutcaststreaming.us:8194/;"></audio>
+    <a-scene id="scene" embedded>
+        <a-assets>
+            <a-asset-item id="sand" src="sand_1x1.bake.ply"></a-asset-item>
+            <a-asset-item id="sand2" src="sand_2x2.bake.ply"></a-asset-item>
+            <a-asset-item id="cactus" src="sand_cactus_1x1.bake.ply"></a-asset-item>
+            <a-asset-item id="house" src="sandy_house.bake.ply"></a-asset-item>
+            <a-asset-item id="hut" src="sandy_hut.bake.ply"></a-asset-item>
+            <img id="sky" src="chrome.jpg" />
+            <audio id="desert" src="desert.mp3" loop></audio>
+        </a-assets>
+
+        <a-sky color="#fff" src="#sky"></a-sky>
+
+        <a-plane height="100" width="100" material="metalness:0" color="#CFC599" rotation="-90 0 0" position="0 0 0" scale="0.1 0.1 0.1"></a-plane>
+
+        <a-entity id="sand1" position="0.5 0 0" ply-model="src: #sand" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="sand1" position="-0.5 0 0" ply-model="src: #sand" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="sand2" position="2 0 0.5" ply-model="src: #sand2" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="cactus1" position="3.5 0 0" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="cactus1" position="-1.5 0 0" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
+
+        <a-entity position="0 0 -2" ply-model="src: #house" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity position="-0.5 0 2" ply-model="src: #hut" rotation="-90 180 0" scale="0.1 0.1 0.1"></a-entity>
+    </a-scene>
+    <div id="splash">
+        <h1>GO TO SANDY NICHE</h1>
+        <p>A place to chill in VR&hellip;</p>
+        <p id="vr">HEADPHONES ON, READY TO GO!</p>
+        <h2>Credits</h2>
+        <p>Desert sound from <a target="_blank" href="https://www.freesound.org/people/kangaroovindaloo/sounds/138288/">Freesound.org</a></p>
+        <p>Environmental broadcast by <a target="_blank" href="http://www.sleepbot.com/ambience/broadcast/">Sleepbot</a></p>
+        <p>A <a href="http://studiozero.co">Studio Zero</a> Scene</p>
+    </div>
+    <script>
+        var sleepbot = document.querySelector('#sleepbot');
+        var desert = document.querySelector('#desert');
+        var splash = document.querySelector('#splash');
+        var vrButton = document.querySelector('#vr');
+        var enter = function () {
+			desert.play();
+			sleepbot.play();
+			splash.parentNode.removeChild(splash);
+
+		}
+		vrButton.addEventListener('click', enter);
+        document.addEventListener('enter-vr', enter);
+    </script>
+</body>
+</html>
