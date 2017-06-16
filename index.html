@@ -48,7 +48,7 @@
             width:100vw;
             overflow:hidden;
             color: white;
-            background : rgba(0,0,0,0.6);
+            background : rgba(0,0,0,0.8);
             top:0;
             left:0;
             text-align: center;
@@ -60,18 +60,79 @@
             margin : 3rem auto 0;
 
         }
-        #vr {
+        .button {
             display:inline-block;
             border : 4px solid white;
             border-radius : 1rem;
             padding : 1rem;
-            margin-top: 3rem;
+            margin: 2rem 1rem 0;
             cursor: pointer;
+            min-width: 240px;
+        }
+
+        #cameraUI {
+            position: absolute;
+            z-index: 100;
+            right : 30px;
+            top : 0;
+            height : 100vh;
+            width : 90px;
+        }
+        #cameraUI .shutter {
+            display:inline-block;
+            width : 80px;
+            height: 80px;
+            padding : 4px;
+            background : red;
+            border-radius : 50%;
+            border : solid white 3px;
+            position : relative;
+            top : calc(50% - 44px);
+            line-height:80px;
+            vertical-align: middle;
+
+            text-align: center;
+            box-shadow: 0 0 15px rgba(100,0,0, 0.5);
+        }
+        #cameraUI svg {
+            display: inline-block;
+            width : 60px;
+            height:60px;
+            margin:10px auto;
+        }
+        svg .a {
+            stroke: #fff;
+            fill : none;
+            stroke-width: 1px;
+        }
+        @media screen and (orientation:portrait) {
+
+            #cameraUI {
+                bottom : 30px;
+                right : auto;
+                top : auto;
+                left : 0;
+                height : 90px;
+                width : 100vw;
+                text-align: center;
+            }
+            #cameraUI .shutter {
+                display:inline-block;
+                position : relative;
+                top : auto;
+            }}
+
+        .hidden {
+            visibility: hidden;
+        }
+        .a-enter-vr-button {
+            display: none;
         }
     </style>
 </head>
 <body>
     <audio id="sleepbot" src="http://sc13.shoutcaststreaming.us:8194/;"></audio>
+
     <a-scene id="scene" embedded>
         <a-assets>
             <a-asset-item id="sand" src="sand_1x1.bake.ply"></a-asset-item>
@@ -90,16 +151,28 @@
         <a-entity id="sand1" position="0.5 0 0" ply-model="src: #sand" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
         <a-entity id="sand1" position="-0.5 0 0" ply-model="src: #sand" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
         <a-entity id="sand2" position="2 0 0.5" ply-model="src: #sand2" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
-        <a-entity id="cactus1" position="3.5 0 0" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
-        <a-entity id="cactus1" position="-1.5 0 0" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="cactus1" position="3.5 0 1" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="cactus2" position="20.5 0 -4" ply-model="src: #cactus" rotation="-90 -270 0" scale="0.1 0.1 0.1"></a-entity>
+        <a-entity id="cactus3" position="-1.5 0 0" ply-model="src: #cactus" rotation="-90 -90 0" scale="0.1 0.1 0.1"></a-entity>
 
         <a-entity position="0 0 -2" ply-model="src: #house" rotation="-90 0 0" scale="0.1 0.1 0.1"></a-entity>
         <a-entity position="-0.5 0 2" ply-model="src: #hut" rotation="-90 180 0" scale="0.1 0.1 0.1"></a-entity>
+
     </a-scene>
+    <div id="cameraUI" class="hidden">
+        <a class="shutter" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26">
+            <title>icon_Camera</title>
+            <circle class="a" cx="13" cy="13.5" r="3.5"/>
+            <polygon class="a" points="3.5 20.5 22.5 20.5 22.5 6.5 16.5 6.5 15.5 3.5 10.5 3.5 9.5 6.5 3.5 6.5 3.5 20.5"/>
+        </svg></a>
+    </div>
+
     <div id="splash">
         <h1>GO TO SANDY NICHE</h1>
         <p>A place to chill in VR&hellip;</p>
-        <p id="vr">HEADPHONES ON, READY TO GO!</p>
+        <p>HEADPHONES ON, READY TO GO!</p>
+        <p class="button" id="vr">Immerse yourself in VR</p>
+        <p class="button" id="mc">Take pictures like a tourist</p>
         <h2>Credits</h2>
         <p>Desert sound from <a target="_blank" href="https://www.freesound.org/people/kangaroovindaloo/sounds/138288/">Freesound.org</a></p>
         <p>Environmental broadcast by <a target="_blank" href="http://www.sleepbot.com/ambience/broadcast/">Sleepbot</a></p>
@@ -110,14 +183,92 @@
         var desert = document.querySelector('#desert');
         var splash = document.querySelector('#splash');
         var vrButton = document.querySelector('#vr');
-        var enter = function () {
-			desert.play();
-			sleepbot.play();
-			splash.parentNode.removeChild(splash);
+        var mcButton = document.querySelector('#mc');
+        var shutter = document.querySelector('.shutter');
+        var camera = document.querySelector('#cameraUI');
+        var ascene = document.querySelector('a-scene');
 
+
+        // page visibility stuff - those crickets are annoying after a while ;)
+		var hidden, visibilityChange;
+		if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+			hidden = "hidden";
+			visibilityChange = "visibilitychange";
+		} else if (typeof document.msHidden !== "undefined") {
+			hidden = "msHidden";
+			visibilityChange = "msvisibilitychange";
+		} else if (typeof document.webkitHidden !== "undefined") {
+			hidden = "webkitHidden";
+			visibilityChange = "webkitvisibilitychange";
 		}
-		vrButton.addEventListener('click', enter);
-        document.addEventListener('enter-vr', enter);
+		var handleVisibilityChange = function () {
+			if (document[hidden]) {
+				sleepbot.pause();
+				desert.pause();
+				ascene.pause();
+			} else {
+				sleepbot.play();
+				desert.play();
+				ascene.play();
+			}
+		}
+
+		document.addEventListener(visibilityChange, handleVisibilityChange, false);
+
+		var makeSomeNoiseRemoveSplash = function () {
+			if(desert) {desert.play();}
+			if(sleepbot) {sleepbot.play();}
+			splash.classList.add('hidden');
+		};
+        var enterMC = function () {
+        	makeSomeNoiseRemoveSplash();
+			camera.classList.remove('hidden');
+        };
+
+		vrButton.addEventListener('click', function () {
+            ascene.enterVR();
+            // no need to do anything else, as rest is bound to the 'enter-vr' event
+		});
+        document.addEventListener('enter-vr', function () {
+        	makeSomeNoiseRemoveSplash();
+		});
+
+		mcButton.addEventListener('click', enterMC);
+
+
+		/**
+		 * This is the function that will take care of image extracting and
+		 * setting proper filename for the download.
+		 * IMPORTANT: Call it from within a onclick event.
+		 */
+		var downloadCanvas = function (link, filename) {
+
+			var can = ascene.components.screenshot.getCanvas('perspective');
+
+			link.href = can.toDataURL();
+			link.download = filename;
+		};
+
+		var picture = function(e) {
+			var dateStr = new Date().toISOString();
+			var name = 'sandy-niche.surge.sh-' + dateStr + '.png';
+			downloadCanvas(this, name);
+		};
+
+		/**
+		 * The event handler for the link's onclick event. We give THIS as a
+		 * parameter (=the link element), ID of the canvas and a filename.
+		 */
+
+
+        shutter.addEventListener('click', picture, false);
+        shutter.addEventListener('touchstart', picture, false);
+
+
+
+
+
+
     </script>
 </body>
 </html>
