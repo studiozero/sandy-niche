@@ -2,6 +2,7 @@
 <head>
     <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
     <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.3/dist/aframe-extras.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.2.2/screenfull.min.js"></script>
 
     <title>Sandy Niche</title>
     <meta name="description" content="Sandy Niche - a place to chill in VR" />
@@ -222,6 +223,10 @@
 		};
         var enterMC = function () {
         	makeSomeNoiseRemoveSplash();
+        	if (screenfull.enabled) {
+				screenfull.request();
+			}
+
 			camera.classList.remove('hidden');
         };
 
